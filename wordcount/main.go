@@ -11,7 +11,7 @@ import (
 
 func main() {
 	if len(os.Args) < 2 {
-		fmt.Println("Usage: wordcount file1 file2 ...")
+		fmt.Println("Usage two files")
 		os.Exit(1)
 	}
 
@@ -23,29 +23,27 @@ func main() {
 			fmt.Fprintf(os.Stderr, "wordcount: %v\n", err)
 			continue
 		}
-		countLines(file, counts)
-		file.Close()
+		defer file.Close()
+		countsLines(file, counts)
 	}
-
-	printCounts(counts)
+	printCount(counts)
 }
 
-func countLines(f *os.File, counts map[string]int) {
+func countsLines(f *os.File, counts map[string]int) {
 	input := bufio.NewScanner(f)
 	for input.Scan() {
-		counts[input.Text()]++
+		counts[string(input.Bytes())]++
 	}
-	// NOTE: ignoring potential errors from input.Err()
 }
 
-func printCounts(counts map[string]int) {
-	type kv struct {
-		Key   string
-		Value int
-	}
+type kv struct {
+	Key   string
+	Value int
+}
 
+func printCount(count map[string]int) {
 	var sortedCounts []kv
-	for k, v := range counts {
+	for k, v := range count {
 		if v >= 2 {
 			sortedCounts = append(sortedCounts, kv{k, v})
 		}
